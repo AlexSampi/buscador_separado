@@ -1,0 +1,13 @@
+Traceback (most recent call last):
+  File "<frozen runpy>", line 198, in _run_module_as_main
+  File "<frozen runpy>", line 88, in _run_code
+  File "C:\Users\alejs\Downloads\version junta\Buscador\cv_sorter\main.py", line 52, in <module>
+    main()
+    ~~~~^^
+  File "C:\Users\alejs\Downloads\version junta\Buscador\cv_sorter\main.py", line 43, in main
+    ventana = VentanaPrincipal("Organización de CV", logo)
+              ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\alejs\Downloads\version junta\Buscador\cv_sorter\ui_main.py", line 124, in __init__
+    QtCore.QTimer.singleShot(0, self._actualizar_layout_home_responsive)
+                                ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AttributeError: 'VentanaPrincipal' object has no attribute '_actualizar_layout_home_responsive'

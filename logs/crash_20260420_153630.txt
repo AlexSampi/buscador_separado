@@ -1,0 +1,5 @@
+Traceback (most recent call last):
+  File "C:\Users\alejs\Downloads\version junta\Buscador\cv_sorter\ui_main.py", line 1439, in <lambda>
+    self.clasificar_btn_deshacer.clicked.connect(lambda: self._clasificar_deshacer())
+                                                         ^^^^^^^^^^^^^^^^^^^^^^^^^
+AttributeError: 'VentanaPrincipal' object has no attribute '_clasificar_deshacer'. Did you mean: 'clasificar_deshacer'?

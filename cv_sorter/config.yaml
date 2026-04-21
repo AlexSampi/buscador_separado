@@ -1,0 +1,63 @@
+# Rutas relativas a la raíz donde están 01_Universidad, 02_FP, etc.
+paths:
+  universidad: "01_Universidad"
+  fp: "02_FP"
+  otras: "03_Otras certificaciones"
+  sin_clasificar: "Candidatos_sin clasificar"
+  no_clasificable: "No clasificable"
+  logs: "logs"
+  index_dir: ".cv_index"
+
+# Tipos de archivo a procesar
+files:
+  include_ext: [".pdf", ".docx", ".txt", ".png", ".jpg", ".jpeg"]
+
+# Clasificación
+classification:
+  min_confidence_to_accept: 0.55
+  allow_duplicate_into_multiple_folders: true
+
+# Búsqueda (con índice)
+search:
+  rebuild_index_every_time: true
+  max_results: 200
+  auto_reindex_if_db_missing: true
+  hide_index_folder: true
+
+# OCR (para PDFs escaneados / imágenes)
+ocr:
+  enabled: true
+  languages: "spa+eng"
+  pdf_dpi: 250
+  max_pdf_pages: 6
+  # Si no tienes tesseract en PATH, pon ruta absoluta:
+  tesseract_cmd: ""   # Ej: "C:\\Program Files\\Tesseract-OCR\\tesseract.exe"
+  # Si no tienes poppler en PATH, pon carpeta bin:
+  poppler_bin: ""     # Ej: "C:\\poppler\\Library\\bin"
+
+# Sinónimos clave (puedes ampliar)
+synonyms:
+  # FP
+  dam: ["dam", "desarrollo de aplicaciones multiplataforma", "multiplataforma"]
+  daw: ["daw", "desarrollo de aplicaciones web", "aplicaciones web"]
+  asir: ["asir", "administración de sistemas", "administracion de sistemas", "sistemas informáticos", "sistemas informaticos"]
+
+  # Nivel
+  master: ["máster", "master", "msc", "m.sc", "postgrado", "posgrado"]
+  doctorado: ["doctorado", "phd", "ph.d", "dphil"]
+
+  # Tech
+  csharp: ["c#", "csharp", "c sharp"]
+  js: ["javascript", "js", "node", "nodejs", "node.js"]
+  react: ["react", "reactjs", "react.js"]
+  python: ["python", "py"]
+  aws: ["aws", "amazon web services"]
+  azure: ["azure"]
+  gcp: ["gcp", "google cloud"]
+  kubernetes: ["kubernetes", "k8s"]
+  docker: ["docker", "containers", "contenedores"]
+
+  # Idiomas
+  ingles_c1: ["english c1", "inglés c1", "ingles c1", "cae", "advanced"]
+  ingles_b2: ["english b2", "inglés b2", "ingles b2", "first certificate", "fce"]
+

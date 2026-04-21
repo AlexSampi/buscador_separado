@@ -1,0 +1,8 @@
+Traceback (most recent call last):
+  File "C:\Users\alejs\Downloads\version junta\Buscador\cv_sorter\ui_main.py", line 4396, in _on_search_finished
+    self._pintar_resultados(encontrados, Path(base))
+    ~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\alejs\Downloads\version junta\Buscador\cv_sorter\ui_main.py", line 4613, in _pintar_resultados
+    ruta_cv = _cv_desde_nota(p)
+              ^^^^^^^^^^^^^^
+NameError: name '_cv_desde_nota' is not defined

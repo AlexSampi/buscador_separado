@@ -1,0 +1,5 @@
+Traceback (most recent call last):
+  File "C:\Users\alejs\Downloads\version junta\Buscador\cv_sorter\ui_main.py", line 1959, in _recalcular_alturas_clasificacion
+    self._threadpool.start(worker)
+                           ^^^^^^
+NameError: name 'worker' is not defined
