@@ -1102,10 +1102,15 @@ class VentanaPrincipal(QtWidgets.QMainWindow):
         if self._carpeta_filtro:
             base = Path(self._carpeta_filtro)
         else:
-            if getattr(sys, "frozen", False):
-                base = Path(sys.executable).resolve().parent
-            else:
-                base = Path(__file__).resolve().parents[1]
+            base = self._home_base_actual()
+
+            if base is None:
+                QtWidgets.QMessageBox.warning(
+                    self,
+                    "Sin carpeta base",
+                    "Selecciona una carpeta primero o entra desde HOME."
+                )
+                return
 
         if not base.exists():
             self.buscar_estado.setText(f"No existe la carpeta: {base}")

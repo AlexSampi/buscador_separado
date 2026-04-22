@@ -11,6 +11,8 @@ def build_home_page(self, ruta_logo: str):
     # ------------------------------------------------------------------ #
     home = QtWidgets.QWidget()
     home.setObjectName("Pantalla")
+    self.home_page_widget = home
+    self.home_page_widget.installEventFilter(self)
     layout_home = QtWidgets.QVBoxLayout(home)
 
     self._poner_fondo_lineas(home, "home")
@@ -80,33 +82,61 @@ def build_home_page(self, ruta_logo: str):
     wrapper_layout = QtWidgets.QVBoxLayout(home_wrapper)
     wrapper_layout.setContentsMargins(0, 0, 0, 0)
     wrapper_layout.setSpacing(0)
+    wrapper_layout.setAlignment(QtCore.Qt.AlignHCenter | QtCore.Qt.AlignTop)
+
+    self.home_hero_host = QtWidgets.QWidget()
+    self.home_hero_host.setSizePolicy(
+        QtWidgets.QSizePolicy.Maximum,
+        QtWidgets.QSizePolicy.Maximum
+    )
+    self.home_hero_layout = QtWidgets.QBoxLayout(QtWidgets.QBoxLayout.LeftToRight)
+    self.home_hero_layout.setContentsMargins(0, 0, 0, 0)
+    self.home_hero_layout.setSpacing(0)
+    self.home_hero_host.setLayout(self.home_hero_layout)
 
     self.home_shell = QtWidgets.QWidget()
     self.home_shell.setObjectName("HomeShell")
-    self.home_shell.setMinimumWidth(920)
+    self.home_shell.setMinimumWidth(0)
     self.home_shell.setSizePolicy(
         QtWidgets.QSizePolicy.Preferred,
         QtWidgets.QSizePolicy.Maximum
     )
 
-    wrapper_layout.setAlignment(QtCore.Qt.AlignHCenter | QtCore.Qt.AlignTop)
-
-    layout_home.addWidget(home_wrapper, 1)
+    self.home_robot_shell = QtWidgets.QWidget()
+    self.home_robot_shell.setObjectName("HomeCard")
+    self.home_robot_shell.setSizePolicy(
+        QtWidgets.QSizePolicy.Maximum,
+        QtWidgets.QSizePolicy.Maximum
+    )
+    self.home_robot_shell_layout = QtWidgets.QVBoxLayout(self.home_robot_shell)
+    self.home_robot_shell_layout.setContentsMargins(22, 22, 22, 22)
+    self.home_robot_shell_layout.setSpacing(0)
 
     self.home_shell_layout = QtWidgets.QGridLayout(self.home_shell)
     self.home_shell_layout.setContentsMargins(0, 0, 0, 0)
     self.home_shell_layout.setHorizontalSpacing(0)
     self.home_shell_layout.setVerticalSpacing(0)
 
-    self.robot_layer_home = QtWidgets.QWidget(self.home_shell)
+    self.robot_layer_home = QtWidgets.QWidget(self.home_robot_shell)
     self.robot_layer_home.setObjectName("RobotLayerHome")
     self.robot_layer_home.setAttribute(QtCore.Qt.WA_TransparentForMouseEvents, True)
+    self.robot_layer_home.setSizePolicy(
+        QtWidgets.QSizePolicy.Maximum,
+        QtWidgets.QSizePolicy.Maximum
+    )
+    self.home_robot_shell_layout.addStretch(1)
+    self.home_robot_shell_layout.addWidget(
+        self.robot_layer_home,
+        0,
+        QtCore.Qt.AlignHCenter | QtCore.Qt.AlignVCenter
+    )
+    self.home_robot_shell_layout.addStretch(1)
 
     contenedor_botones = QtWidgets.QWidget()
     contenedor_botones.setObjectName("HomeCard")
     self.home_card = contenedor_botones
     self.home_card.setMouseTracking(True)
-    contenedor_botones.setMinimumWidth(760)
+    contenedor_botones.setMinimumWidth(0)
     contenedor_botones.setMinimumHeight(0)
     contenedor_botones.setMaximumHeight(16777215)
     contenedor_botones.setMaximumWidth(920)
@@ -133,6 +163,8 @@ def build_home_page(self, ruta_logo: str):
 
     layout_botones.setSpacing(14)
     layout_botones.setContentsMargins(34, 34, 34, 8)
+    self._home_responsive_breakpoint = 980
+    self._home_responsive_mode = None
 
 
     for boton in (self.boton_buscar, self.boton_clasificar):
@@ -158,14 +190,16 @@ def build_home_page(self, ruta_logo: str):
     bw.setContentsMargins(18, 4, 18, 2)
     bw.setSpacing(12)
 
-    fila_botones = QtWidgets.QHBoxLayout()
+    fila_botones = QtWidgets.QGridLayout()
     fila_botones.setContentsMargins(0, 0, 0, 0)
-    fila_botones.setSpacing(18)
-
-    fila_botones.addStretch(1)
-    fila_botones.addWidget(self.boton_buscar)
-    fila_botones.addWidget(self.boton_clasificar)
-    fila_botones.addStretch(1)
+    fila_botones.setHorizontalSpacing(18)
+    fila_botones.setVerticalSpacing(12)
+    fila_botones.setColumnStretch(0, 1)
+    fila_botones.setColumnStretch(3, 1)
+    fila_botones.addWidget(self.boton_buscar, 0, 1)
+    fila_botones.addWidget(self.boton_clasificar, 0, 2)
+    self.home_primary_buttons_layout = fila_botones
+    self._home_primary_buttons = (self.boton_buscar, self.boton_clasificar)
 
     bw.addLayout(fila_botones)
 
@@ -392,7 +426,18 @@ def build_home_page(self, ruta_logo: str):
     
 
     # --- NUEVO HERO CENTRAL (vertical + robot superpuesto) ---
+    self.home_scroll = QtWidgets.QScrollArea()
+    self.home_scroll.setObjectName("HomeScroll")
+    self.home_scroll.setFrameShape(QtWidgets.QFrame.NoFrame)
+    self.home_scroll.setWidgetResizable(True)
+    self.home_scroll.setHorizontalScrollBarPolicy(QtCore.Qt.ScrollBarAlwaysOff)
+    self.home_scroll.setVerticalScrollBarPolicy(QtCore.Qt.ScrollBarAsNeeded)
+    self.home_scroll.setAlignment(QtCore.Qt.AlignHCenter | QtCore.Qt.AlignTop)
+    self.home_scroll.viewport().setAutoFillBackground(False)
+    self.home_scroll.viewport().installEventFilter(self)
+
     contenedor_central = QtWidgets.QWidget()
+    self.home_scroll_content = contenedor_central
     layout_central = QtWidgets.QVBoxLayout(contenedor_central)
     layout_central.setContentsMargins(0, 0, 0, 0)
     layout_central.setSpacing(14)
@@ -515,50 +560,127 @@ def build_home_page(self, ruta_logo: str):
     self.home_shell_layout.addWidget(contenedor_botones, 0, 0, QtCore.Qt.AlignCenter)
     self.robot_layer_home.raise_()
 
-    wrapper_layout.addWidget(self.home_shell, 0, QtCore.Qt.AlignHCenter)
+    self.home_hero_layout.addWidget(self.home_shell, 0, QtCore.Qt.AlignHCenter | QtCore.Qt.AlignTop)
+    self.home_hero_layout.addWidget(self.home_robot_shell, 0, QtCore.Qt.AlignHCenter | QtCore.Qt.AlignTop)
+
+    wrapper_layout.addWidget(self.home_hero_host, 0, QtCore.Qt.AlignHCenter | QtCore.Qt.AlignTop)
 
     layout_central.addWidget(home_wrapper, 0, QtCore.Qt.AlignHCenter)
     layout_central.addWidget(self.home_hint, 0, QtCore.Qt.AlignHCenter)
 
-    centro = QtWidgets.QWidget()
-    layout_centro = QtWidgets.QVBoxLayout(centro)
-    layout_centro.setContentsMargins(0, 0, 0, 0)
-    layout_centro.setSpacing(0)
-    layout_centro.setAlignment(QtCore.Qt.AlignHCenter | QtCore.Qt.AlignTop)
-
-    layout_home.addWidget(centro, 1, QtCore.Qt.AlignHCenter | QtCore.Qt.AlignTop)
-    layout_centro.addWidget(contenedor_central, 0, QtCore.Qt.AlignCenter)# PEGA AQUÍ EL BLOQUE HOME DE ui_main.py
+    self.home_scroll.setWidget(contenedor_central)
+    layout_home.addWidget(self.home_scroll, 1)
     return home
+
+def _aplicar_modo_home_responsive(self, compacto: bool):
+        if not hasattr(self, "home_primary_buttons_layout"):
+            return
+
+        nuevo_modo = "compacto" if compacto else "grande"
+        if getattr(self, "_home_responsive_mode", None) == nuevo_modo:
+            return
+
+        layout = self.home_primary_buttons_layout
+        for boton in getattr(self, "_home_primary_buttons", ()):
+            layout.removeWidget(boton)
+
+        if compacto:
+            for boton in getattr(self, "_home_primary_buttons", ()):
+                boton.setMinimumWidth(0)
+                boton.setMaximumWidth(260)
+                boton.setSizePolicy(QtWidgets.QSizePolicy.Expanding, QtWidgets.QSizePolicy.Preferred)
+            layout.setHorizontalSpacing(0)
+            layout.setVerticalSpacing(12)
+            layout.setColumnStretch(0, 1)
+            layout.setColumnStretch(1, 0)
+            layout.setColumnStretch(2, 1)
+            layout.setColumnStretch(3, 0)
+            layout.addWidget(self.boton_buscar, 0, 1)
+            layout.addWidget(self.boton_clasificar, 1, 1)
+        else:
+            for boton in getattr(self, "_home_primary_buttons", ()):
+                boton.setSizePolicy(QtWidgets.QSizePolicy.Fixed, QtWidgets.QSizePolicy.Preferred)
+                boton.setFixedWidth(260)
+            layout.setHorizontalSpacing(18)
+            layout.setVerticalSpacing(12)
+            layout.setColumnStretch(0, 1)
+            layout.setColumnStretch(1, 0)
+            layout.setColumnStretch(2, 0)
+            layout.setColumnStretch(3, 1)
+            layout.addWidget(self.boton_buscar, 0, 1)
+            layout.addWidget(self.boton_clasificar, 0, 2)
+
+        self._home_responsive_mode = nuevo_modo
+        layout.invalidate()
+        layout.activate()
 
 def actualizar_layout_home_responsive(self):
         if not hasattr(self, "home_shell"):
             return
         if not hasattr(self, "home_card"):
             return
+        if not hasattr(self, "home_robot_shell"):
+            return
+        if not hasattr(self, "home_hero_layout"):
+            return
         if not hasattr(self, "robot_layer_home"):
             return
         if not hasattr(self, "robot_home_label"):
             return
 
-        home_w = self.centralWidget().width() if self.centralWidget() else self.width()
-
-        if home_w >= 1500:
-            card_w = 920
-        elif home_w >= 1280:
-            card_w = 860
-        elif home_w >= 1120:
-            card_w = 800
-        elif home_w >= 980:
-            card_w = 740
+        if hasattr(self, "home_scroll") and self.home_scroll is not None:
+            home_w = self.home_scroll.viewport().width()
+        elif hasattr(self, "home_page_widget") and self.home_page_widget is not None:
+            home_w = self.home_page_widget.width()
+        elif self.centralWidget():
+            home_w = self.centralWidget().width()
         else:
-            card_w = max(620, home_w - 160)
+            home_w = self.width()
+
+        hero_available_w = max(0, home_w - 68)
+        breakpoint = getattr(self, "_home_responsive_breakpoint", 980)
+        compacto = hero_available_w < breakpoint
+        _aplicar_modo_home_responsive(self, compacto)
+
+        direccion = (
+            QtWidgets.QBoxLayout.TopToBottom
+            if compacto else
+            QtWidgets.QBoxLayout.LeftToRight
+        )
+        self.home_hero_layout.setDirection(direccion)
+        self.home_hero_layout.setSpacing(12 if compacto else 18)
+        self.home_hero_layout.setStretch(0, 0)
+        self.home_hero_layout.setStretch(1, 0)
+        self.home_hero_layout.invalidate()
+        self.home_hero_layout.activate()
+
+        if hero_available_w >= 1320:
+            card_target_w = 920
+        elif hero_available_w >= 1180:
+            card_target_w = 860
+        else:
+            card_target_w = 800
+
+        if compacto:
+            card_w = min(740, max(380, hero_available_w - 18))
+        else:
+            if hero_available_w >= 1240:
+                robot_shell_w = 340
+            elif hero_available_w >= 1080:
+                robot_shell_w = 320
+            else:
+                robot_shell_w = 300
+            card_w = min(
+                card_target_w,
+                max(620, hero_available_w - robot_shell_w - 18)
+            )
 
         self.home_card.setFixedWidth(card_w)
 
         lay = self.home_card.layout()
         if lay is not None:
-            lay.activate()
             lay.invalidate()
+            lay.activate()
 
         self.home_card.adjustSize()
 
@@ -568,23 +690,37 @@ def actualizar_layout_home_responsive(self):
         self.home_card.setMinimumHeight(card_h)
         self.home_card.setMaximumHeight(16777215)
 
-        shell_w = card_w + 70
-        shell_h = card_h + 128
+        shell_w = card_w
+        shell_h = card_h
         self.home_shell.setFixedSize(shell_w, shell_h)
-        self.home_shell_layout.setContentsMargins(20, -8, 20, 32)
-
-        self.robot_layer_home.setGeometry(self.home_shell.rect())
-        self.robot_layer_home.raise_()
+        self.home_shell_layout.setContentsMargins(0, 0, 0, 0)
+        self.home_shell_layout.invalidate()
+        self.home_shell_layout.activate()
 
         self.robot_home_label.adjustSize()
         rw = self.robot_home_label.width()
+        rh = self.robot_home_label.height()
 
-        robot_x = card_w - int(rw * 0.34)
-        robot_y = -2
+        if compacto:
+            robot_shell_w = card_w
+            robot_shell_h = max(300, min(340, rh + 32))
+        else:
+            if hero_available_w >= 1240:
+                robot_shell_w = 340
+            elif hero_available_w >= 1080:
+                robot_shell_w = 320
+            else:
+                robot_shell_w = 300
+            robot_shell_h = card_h
 
-        max_x = max(0, self.home_shell.width() - rw)
-        robot_x = max(0, min(robot_x, max_x))
+        self.home_robot_shell.setFixedSize(robot_shell_w, robot_shell_h)
+        robot_stage_w = rw + 24
+        robot_stage_h = rh + 24
+        self.robot_layer_home.setFixedSize(robot_stage_w, robot_stage_h)
+        self.robot_layer_home.raise_()
 
+        robot_x = max(0, (robot_stage_w - rw) // 2)
+        robot_y = max(0, (robot_stage_h - rh) // 2)
         self.robot_home_label.move(robot_x, robot_y)
         self.robot_home_label.raise_()
 
@@ -594,12 +730,22 @@ def actualizar_layout_home_responsive(self):
         if hasattr(self, "robot_chest"):
             QtCore.QTimer.singleShot(0, self._posicionar_robot_chest)
 
+        if hasattr(self, "boton_buscar"):
+            btn_pos = self.boton_buscar.pos()
+            if getattr(self, "_buscar_btn_hovered", False):
+                btn_pos = QtCore.QPoint(btn_pos.x(), btn_pos.y() + 3)
+            self._buscar_btn_base_pos = btn_pos
+
         QtCore.QTimer.singleShot(0, self.robot_layer_home.raise_)
         QtCore.QTimer.singleShot(0, self.robot_home_label.raise_)
 
 def event_filter_home(self, obj, event):
     # 3) HOME responsive + orden de capas
-    if obj is getattr(self, "home_wrapper", None):
+    if obj in (
+        getattr(self, "home_page_widget", None),
+        getattr(self, "home_wrapper", None),
+        getattr(getattr(self, "home_scroll", None), "viewport", lambda: None)(),
+    ):
         if event.type() == QtCore.QEvent.Resize:
             QtCore.QTimer.singleShot(0, self._actualizar_layout_home_responsive)
             return False

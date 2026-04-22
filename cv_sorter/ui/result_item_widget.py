@@ -56,7 +56,7 @@ class ItemResultado(QtWidgets.QWidget):
         layout.addWidget(self.label, 1)
 
         botones_layout = QtWidgets.QHBoxLayout()
-        botones_layout.setSpacing(8)
+        botones_layout.setSpacing(12)
         botones_layout.setContentsMargins(0, 0, 0, 0)
 
         self.boton_abrir = QtWidgets.QPushButton()
@@ -65,13 +65,47 @@ class ItemResultado(QtWidgets.QWidget):
         self.boton_abrir.setFixedHeight(36)
         self.boton_abrir.setObjectName("BotonAbrir")
 
-        self.boton_notas = QtWidgets.QPushButton()
+        self.boton_notas = QtWidgets.QPushButton("📝 Notas")
         self.boton_notas.setCursor(QtCore.Qt.PointingHandCursor)
-        self.boton_notas.setFixedWidth(140)
+        self.boton_notas.setFixedWidth(90)
         self.boton_notas.setFixedHeight(36)
         self.boton_notas.setSizePolicy(QtWidgets.QSizePolicy.Fixed, QtWidgets.QSizePolicy.Fixed)
 
+        self.boton_notas_menu = QtWidgets.QPushButton("▾")
+        self.boton_notas_menu.setCursor(QtCore.Qt.PointingHandCursor)
+        self.boton_notas_menu.setFixedWidth(32)
+        self.boton_notas_menu.setFixedHeight(36)
+        self.boton_notas_menu.setSizePolicy(QtWidgets.QSizePolicy.Fixed, QtWidgets.QSizePolicy.Fixed)
+        self.boton_notas_menu.setObjectName("BotonNotasMenu")
+
         self.boton_cliente = QtWidgets.QPushButton()
+        # --- SEMÁFORO ---
+        self.boton_estado = QtWidgets.QPushButton("Neutro")
+        self.boton_estado.setFixedWidth(132)
+        self.boton_estado.setFixedHeight(36)
+        self.boton_estado.setCursor(QtCore.Qt.PointingHandCursor)
+        self.boton_estado.setSizePolicy(QtWidgets.QSizePolicy.Fixed, QtWidgets.QSizePolicy.Fixed)
+        self.boton_estado.setIconSize(QtCore.QSize(12, 12))
+
+        menu_estado = QtWidgets.QMenu(self.boton_estado)
+        menu_estado.setMinimumWidth(135)
+
+        icono_neutro = self._crear_icono_estado("#d1d5db")
+        icono_verde = self._crear_icono_estado("#22c55e")
+        icono_naranja = self._crear_icono_estado("#f59e0b")
+        icono_rojo = self._crear_icono_estado("#ef4444")
+
+        accion_neutro = menu_estado.addAction(icono_neutro, "Neutro")
+        accion_verde = menu_estado.addAction(icono_verde, "Bueno")
+        accion_naranja = menu_estado.addAction(icono_naranja, "Dudas")
+        accion_rojo = menu_estado.addAction(icono_rojo, "Descartar")
+
+        accion_neutro.triggered.connect(lambda: self._cambiar_estado(""))
+        accion_verde.triggered.connect(lambda: self._cambiar_estado("verde"))
+        accion_naranja.triggered.connect(lambda: self._cambiar_estado("naranja"))
+        accion_rojo.triggered.connect(lambda: self._cambiar_estado("rojo"))
+
+        self.boton_estado.setMenu(menu_estado)
         self.boton_cliente.setCursor(QtCore.Qt.PointingHandCursor)
         self.boton_cliente.setFixedWidth(126)
         self.boton_cliente.setFixedHeight(36)
@@ -81,7 +115,7 @@ class ItemResultado(QtWidgets.QWidget):
             self.boton_abrir.hide()
             self.boton_cliente.hide()
 
-            self.boton_notas.setText("🗒 Notas ▾")
+            self.boton_notas.setText("📝 Notas")
             self.boton_notas.setObjectName("BotonNotasActivo")
 
             menu_notas = QtWidgets.QMenu(self.boton_notas)
@@ -102,6 +136,7 @@ class ItemResultado(QtWidgets.QWidget):
                 )
             )
             self.boton_notas.setMenu(menu_notas)
+
             self.boton_notas.style().unpolish(self.boton_notas)
             self.boton_notas.style().polish(self.boton_notas)
 
@@ -119,8 +154,6 @@ class ItemResultado(QtWidgets.QWidget):
                 lambda: self.cliente_clicked.emit(self.ruta_cv)
             )
 
-            self.boton_notas.setText("🗒 Notas ▾")
-
             menu_notas = QtWidgets.QMenu(self.boton_notas)
 
             accion_abrir_notas = menu_notas.addAction("Abrir notas")
@@ -134,21 +167,41 @@ class ItemResultado(QtWidgets.QWidget):
             accion_anadir_nota.triggered.connect(
                 lambda: self.anadir_nota_clicked.emit(self.ruta_cv)
             )
+
             self.boton_notas.setMenu(menu_notas)
 
             self._actualizar_estilo_notas(tiene_notas)
 
         botones_layout.addWidget(self.boton_abrir)
         botones_layout.addWidget(self.boton_cliente)
+        botones_layout.addWidget(self.boton_estado)
         botones_layout.addWidget(self.boton_notas)
 
         layout.addLayout(botones_layout)
 
+        estado = self._leer_estado()
+        self._actualizar_visual_estado(estado)
+
+    def _crear_icono_estado(self, color_hex: str) -> QtGui.QIcon:
+        pix = QtGui.QPixmap(14, 14)
+        pix.fill(QtCore.Qt.transparent)
+
+        painter = QtGui.QPainter(pix)
+        painter.setRenderHint(QtGui.QPainter.Antialiasing, True)
+        painter.setPen(QtCore.Qt.NoPen)
+        painter.setBrush(QtGui.QColor(color_hex))
+        painter.drawEllipse(1, 1, 12, 12)
+        painter.end()
+
+        return QtGui.QIcon(pix)
+
     def _actualizar_estilo_notas(self, tiene_notas: bool):
         nombre = "BotonNotasActivo" if tiene_notas else "BotonNotas"
         self.boton_notas.setObjectName(nombre)
+
         self.boton_notas.style().unpolish(self.boton_notas)
         self.boton_notas.style().polish(self.boton_notas)
+
         tooltip = (
             "Este CV ya tiene notas — abrir o añadir anotación"
             if tiene_notas
@@ -208,3 +261,121 @@ class ItemResultado(QtWidgets.QWidget):
             self._shadow.setOffset(0, 4)
             self._shadow.setColor(QtGui.QColor(0, 0, 0, 40))
         return super().leaveEvent(event)
+    
+    def _ruta_estado(self) -> Path:
+        p = Path(self.ruta_cv)
+        return p.with_suffix(p.suffix + ".estado.txt")
+
+
+    def _cambiar_estado(self, estado: str):
+        ruta = self._ruta_estado()
+
+        try:
+            if estado:
+                ruta.write_text(estado, encoding="utf-8")
+            else:
+                if ruta.exists():
+                    ruta.unlink()
+        except Exception:
+            return
+
+        self._actualizar_visual_estado(estado)
+
+
+    def _leer_estado(self) -> str:
+        ruta = self._ruta_estado()
+
+        if not ruta.exists():
+            return ""
+
+        try:
+            return ruta.read_text(encoding="utf-8").strip()
+        except Exception:
+            return ""
+
+
+    def _actualizar_visual_estado(self, estado: str):
+        if estado == "verde":
+            self.boton_estado.setText("Bueno")
+            self.boton_estado.setIcon(self._crear_icono_estado("#22c55e"))
+            self.boton_estado.setStyleSheet("""
+                QPushButton {
+                    background-color: #dcfce7;
+                    color: #166534;
+                    border: 1px solid #86efac;
+                    border-radius: 8px;
+                    font-weight: 700;
+                    padding: 0 6px;
+                    text-align: center;
+                }
+            """)
+            self.setStyleSheet("""
+                QWidget#ResultadoItem {
+                    background-color: rgba(34, 197, 94, 0.06);
+                    border: 1px solid rgba(34, 197, 94, 0.18);
+                    border-radius: 14px;
+                }
+            """)
+        elif estado == "naranja":
+            self.boton_estado.setText("Dudas")
+            self.boton_estado.setIcon(self._crear_icono_estado("#f59e0b"))
+            self.boton_estado.setStyleSheet("""
+                QPushButton {
+                    background-color: #fef3c7;
+                    color: #92400e;
+                    border: 1px solid #fcd34d;
+                    border-radius: 8px;
+                    font-weight: 700;
+                    padding: 0 10px;
+                    text-align: center;
+                }
+            """)
+            self.setStyleSheet("""
+                QWidget#ResultadoItem {
+                    background-color: rgba(245, 158, 11, 0.06);
+                    border: 1px solid rgba(245, 158, 11, 0.18);
+                    border-radius: 14px;
+                }
+            """)
+        elif estado == "rojo":
+            self.boton_estado.setText("Desc.")
+            self.boton_estado.setIcon(self._crear_icono_estado("#ef4444"))
+            self.boton_estado.setStyleSheet("""
+                QPushButton {
+                    background-color: #fee2e2;
+                    color: #991b1b;
+                    border: 1px solid #fca5a5;
+                    border-radius: 8px;
+                    font-weight: 700;
+                    padding: 0 10px;
+                    text-align: center;
+                }
+            """)
+            self.setStyleSheet("""
+                QWidget#ResultadoItem {
+                    background-color: rgba(239, 68, 68, 0.06);
+                    border: 1px solid rgba(239, 68, 68, 0.18);
+                    border-radius: 14px;
+                }
+            """)
+        else:
+            self.boton_estado.setText("Neutro")
+            self.boton_estado.setIcon(self._crear_icono_estado("#d1d5db"))
+            self.boton_estado.setStyleSheet("""
+                QPushButton {
+                    background-color: #f3f4f6;
+                    color: #6b7280;
+                    border: 1px solid #d1d5db;
+                    border-radius: 8px;
+                    font-weight: 700;
+                    padding: 0 10px;
+                    text-align: center;
+                }
+            """)
+            self.setStyleSheet("""
+                QWidget#ResultadoItem {
+                    background-color: rgba(255, 255, 255, 0.92);
+                    border: 1px solid rgba(139, 92, 246, 0.10);
+                    border-radius: 14px;
+                }
+            """)

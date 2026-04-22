@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 from PySide6 import QtCore, QtWidgets
+import re
 
 from cv_sorter.ui.client_widgets import ClienteCardWidget
 from cv_sorter.ui.dialogs import DialogoTextoPremium
@@ -24,6 +25,7 @@ class DialogoClientesPremium(QtWidgets.QDialog):
         self.resize(670, 520)
 
         self._filtro_estado_actual = "Todas"
+        self._tenia_clientes_iniciales = bool(clientes_iniciales)
 
         layout = QtWidgets.QVBoxLayout(self)
         layout.setContentsMargins(18, 14, 18, 14)
@@ -206,17 +208,19 @@ class DialogoClientesPremium(QtWidgets.QDialog):
         for item in (clientes_iniciales or []):
             empresa = self._normalizar_empresa(str((item or {}).get("empresa", "")).strip())
             nota = str((item or {}).get("nota", "")).strip()
+            nota_fecha = str((item or {}).get("nota_fecha", "")).strip()
             estado = str((item or {}).get("estado", "Pendiente")).strip() or "Pendiente"
             if estado not in self.ESTADOS_VALIDOS:
                 estado = "Pendiente"
 
             if empresa:
                 self._anadir_empresa_a_lista(
-                    empresa,
-                    nota,
-                    estado,
-                    comprobar_duplicado=False
-                )
+                empresa,
+                nota,
+                estado,
+                nota_fecha=nota_fecha,
+                comprobar_duplicado=False
+            )
 
         self._actualizar_estado_ui()
         self._refrescar_visibilidad_lista()
@@ -245,7 +249,7 @@ class DialogoClientesPremium(QtWidgets.QDialog):
     def _on_guardar_clientes(self):
         total = self.lista_empresas.count()
 
-        if total <= 0:
+        if total <= 0 and not self._tenia_clientes_iniciales:
             self.lbl_info.setText("Añade al menos una empresa antes de guardar.")
             self.lbl_info.setVisible(True)
             self.input_empresa.setFocus()
@@ -280,6 +284,7 @@ class DialogoClientesPremium(QtWidgets.QDialog):
         empresa: str,
         nota: str = "",
         estado: str = "Pendiente",
+        nota_fecha: str = "",
         comprobar_duplicado: bool = True
     ):
         empresa = self._normalizar_empresa(empresa)
@@ -294,8 +299,7 @@ class DialogoClientesPremium(QtWidgets.QDialog):
 
         if comprobar_duplicado and self._ya_existe_empresa(empresa):
             return
-
-        widget = ClienteCardWidget(empresa, nota, estado)
+        widget = ClienteCardWidget(empresa, nota, estado, nota_fecha)
         widget.eliminar_clicked.connect(self._eliminar_empresa)
         widget.notas_clicked.connect(self._editar_nota_empresa)
         widget.estado_changed.connect(self._actualizar_estado_empresa)
@@ -304,6 +308,7 @@ class DialogoClientesPremium(QtWidgets.QDialog):
         item.setData(QtCore.Qt.UserRole, {
             "empresa": empresa,
             "nota": nota,
+            "nota_fecha": (nota_fecha or "").strip(),
             "estado": estado,
         })
         item.setSizeHint(widget.sizeHint())
@@ -358,23 +363,103 @@ class DialogoClientesPremium(QtWidgets.QDialog):
 
             nota_actual = str(data.get("nota", "")).strip()
 
-            dialogo = DialogoTextoPremium(
-                parent=self,
-                titulo="Notas de empresa",
-                subtitulo="Añade una nota interna para esta empresa.",
-                nombre_cv=empresa,
-                texto_inicial=nota_actual,
-                placeholder="Ejemplo: enviado, pendiente de respuesta, perfil que encaja mejor con backend...",
-                texto_boton_ok="Guardar nota",
-                texto_boton_cancelar="Cancelar",
-                permitir_vacio=True,
-            )
+            msg = QtWidgets.QMessageBox(self)
+            msg.setWindowTitle("Notas de empresa")
+            msg.setText(f"¿Qué quieres hacer con las notas de '{empresa}'?")
+            btn_anadir = msg.addButton("Añadir nota", QtWidgets.QMessageBox.AcceptRole)
 
-            if dialogo.exec() != QtWidgets.QDialog.Accepted:
+            btn_borrar_ultima = None
+            btn_borrar_todo = None
+
+            if nota_actual:
+                btn_borrar_ultima = msg.addButton("Borrar última", QtWidgets.QMessageBox.ActionRole)
+                btn_borrar_todo = msg.addButton("Borrar todo", QtWidgets.QMessageBox.DestructiveRole)
+
+            btn_cancelar = msg.addButton("Cancelar", QtWidgets.QMessageBox.RejectRole)
+            msg.exec()
+
+            clicked = msg.clickedButton()
+
+            if clicked == btn_cancelar or clicked is None:
                 return
 
-            nueva_nota = dialogo.obtener_texto().strip()
-            data["nota"] = nueva_nota
+            if btn_borrar_todo is not None and clicked == btn_borrar_todo:
+                respuesta = QtWidgets.QMessageBox.question(
+                    self,
+                    "Borrar historial",
+                    f"¿Seguro que quieres borrar todas las notas de '{empresa}'?",
+                    QtWidgets.QMessageBox.Yes | QtWidgets.QMessageBox.No,
+                    QtWidgets.QMessageBox.No,
+                )
+                if respuesta != QtWidgets.QMessageBox.Yes:
+                    return
+
+                data["nota"] = ""
+                data["nota_fecha"] = ""
+
+            elif btn_borrar_ultima is not None and clicked == btn_borrar_ultima:
+                partes = re.split(r"\n\s*\n(?=\[)", nota_actual)
+
+                if not partes:
+                    QtWidgets.QMessageBox.information(
+                        self,
+                        "Sin notas",
+                        "No hay notas para borrar."
+                    )
+                    return
+
+                if len(partes) == 1:
+                    respuesta = QtWidgets.QMessageBox.question(
+                        self,
+                        "Borrar última nota",
+                        f"Solo queda una nota en '{empresa}'.\n\n¿Quieres borrarla?",
+                        QtWidgets.QMessageBox.Yes | QtWidgets.QMessageBox.No,
+                        QtWidgets.QMessageBox.No,
+                    )
+                    if respuesta != QtWidgets.QMessageBox.Yes:
+                        return
+
+                    data["nota"] = ""
+                    data["nota_fecha"] = ""
+                else:
+                    nueva = "\n\n".join(partes[1:]).strip()
+                    data["nota"] = nueva
+
+                    m = re.match(r"^\[(.*?)\]", nueva)
+                    data["nota_fecha"] = m.group(1).strip() if m else ""
+
+            elif clicked == btn_anadir:
+                dialogo = DialogoTextoPremium(
+                    parent=self,
+                    titulo="Nueva nota de empresa",
+                    subtitulo="Escribe una nueva anotación. Se añadirá al historial con fecha y hora.",
+                    nombre_cv=empresa,
+                    texto_inicial="",
+                    placeholder="Ejemplo: enviado, pendiente de respuesta, perfil que encaja mejor con backend...",
+                    texto_boton_ok="Añadir nota",
+                    texto_boton_cancelar="Cancelar",
+                    permitir_vacio=False,
+                )
+
+                if dialogo.exec() != QtWidgets.QDialog.Accepted:
+                    return
+
+                nueva_nota = dialogo.obtener_texto().strip()
+                if not nueva_nota:
+                    return
+
+                fecha = QtCore.QDateTime.currentDateTime().toString("yyyy-MM-dd HH:mm")
+                nueva_entrada = f"[{fecha}]\n{nueva_nota}"
+
+                if nota_actual:
+                    data["nota"] = nueva_entrada + "\n\n" + nota_actual
+                else:
+                    data["nota"] = nueva_entrada
+
+                data["nota_fecha"] = fecha
+
+            else:
+                return
 
             if "estado" not in data or not str(data.get("estado", "")).strip():
                 data["estado"] = "Pendiente"
@@ -384,7 +469,10 @@ class DialogoClientesPremium(QtWidgets.QDialog):
             widget = self.lista_empresas.itemWidget(item)
             if widget is not None:
                 if hasattr(widget, "set_nota"):
-                    widget.set_nota(nueva_nota)
+                    widget.set_nota(
+                        str(data.get("nota", "")).strip(),
+                        str(data.get("nota_fecha", "")).strip()
+                    )
                 if hasattr(widget, "set_estado"):
                     widget.set_estado(str(data.get("estado", "Pendiente")).strip() or "Pendiente")
 
@@ -453,7 +541,7 @@ class DialogoClientesPremium(QtWidgets.QDialog):
             self.lbl_contador.setText(" • ".join(partes))
 
         self.btn_guardar.setText("Guardar")
-        self.btn_guardar.setEnabled(total > 0)
+        self.btn_guardar.setEnabled(total > 0 or self._tenia_clientes_iniciales)
 
     def _aplicar_filtro_estado(self, estado: str):
         self._filtro_estado_actual = estado or "Todas"
@@ -522,6 +610,7 @@ class DialogoClientesPremium(QtWidgets.QDialog):
 
             empresa = str(data.get("empresa", "")).strip()
             nota = str(data.get("nota", "")).strip()
+            nota_fecha = str(data.get("nota_fecha", "")).strip()
             estado = str(data.get("estado", "Pendiente")).strip() or "Pendiente"
 
             if estado not in self.ESTADOS_VALIDOS:
@@ -531,6 +620,7 @@ class DialogoClientesPremium(QtWidgets.QDialog):
                 datos.append({
                     "empresa": empresa,
                     "nota": nota,
+                    "nota_fecha": nota_fecha,
                     "estado": estado,
                 })
 

@@ -498,18 +498,13 @@ QLabel#ResultadoTexto {
 }
 
 QPushButton#BotonAbrir {
-    background: rgba(255,255,255,0.92);
-    border: 1px solid rgba(148,163,184,0.40);
-    border-radius: 12px;
-    padding: 7px 14px;
-    font-weight: 850;
-    font-size: 13px;
-    color: #0f172a;
+    background-color: white;
+    border: 1px solid #ddd;
+    padding: 6px 12px;
+    border-radius: 10px;
 }
-
 QPushButton#BotonAbrir:hover {
-    background: rgba(226,232,240,0.65);
-    border: 1px solid rgba(148,163,184,0.60);
+    background-color: #f3f0ff;
 }
 
 QPushButton#BotonAbrir:pressed {
@@ -520,7 +515,10 @@ QPushButton#BotonNotas {
     background: rgba(167, 139, 250, 0.18);
     border: 1px solid rgba(139, 92, 246, 0.55);
     border-radius: 12px;
-    padding: 7px 14px;
+
+    padding: 7px 16px;   /* 👈 antes 14 → ahora igual que estado */
+    min-width: 90px;     /* 👈 CLAVE para igualarlo */
+
     font-weight: 950;
     font-size: 13px;
     color: #111827;
@@ -539,7 +537,10 @@ QPushButton#BotonNotasActivo {
     background: rgba(124, 58, 237, 0.18);
     border: 1px solid rgba(124, 58, 237, 0.70);
     border-radius: 12px;
-    padding: 7px 14px;
+
+    padding: 7px 16px;
+    min-width: 90px;
+
     font-weight: 950;
     font-size: 13px;
     color: #111827;

@@ -364,10 +364,6 @@ class _SearchWorker(QtCore.QRunnable):
             ".pdf", ".doc", ".docx", ".odt", ".rtf"
         }
 
-        cfg_exts = {e.lower() for e in (cfg.get("files", {}) or {}).get("include_ext", [])}
-        if cfg_exts:
-            extensiones_cvs = {e for e in cfg_exts if e != ".txt"}
-
         archivos: list[Path] = []
 
         for p in self.base.rglob("*"):
@@ -377,14 +373,22 @@ class _SearchWorker(QtCore.QRunnable):
 
                 nombre = p.name.lower()
 
+                # ---- MODO NOTAS ----
                 if self.search_scope == "notes":
                     if nombre.endswith(".notas.txt"):
                         archivos.append(p)
                     continue
 
+                # ---- MODO CVS ----
+                # Excluir siempre archivos auxiliares
                 if nombre.endswith(".notas.txt"):
                     continue
+                if nombre.endswith(".clientes.txt"):
+                    continue
+                if nombre.endswith(".clasificacion.yml"):
+                    continue
 
+                # Solo extensiones de CV reales
                 if p.suffix.lower() not in extensiones_cvs:
                     continue
 

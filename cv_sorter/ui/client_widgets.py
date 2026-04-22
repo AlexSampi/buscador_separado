@@ -16,12 +16,13 @@ class ClienteCardWidget(QtWidgets.QWidget):
         "Contratado",
     )
 
-    def __init__(self, empresa: str, nota: str = "", estado: str = "Pendiente", parent=None):
+    def __init__(self, empresa: str, nota: str = "", estado: str = "Pendiente", nota_fecha: str = "", parent=None):
         super().__init__(parent)
 
         self.empresa = (empresa or "").strip()
         self.nota = (nota or "").strip()
         self.estado = (estado or "Pendiente").strip()
+        self.nota_fecha = (nota_fecha or "").strip()
         if self.estado not in self.ESTADOS_VALIDOS:
             self.estado = "Pendiente"
 
@@ -106,7 +107,16 @@ class ClienteCardWidget(QtWidgets.QWidget):
             preview = ""
 
         estado_txt = f"Estado: {self.estado or 'Pendiente'}"
-        self.lbl_nota.setText(f"{estado_txt} · {preview}" if preview else estado_txt)
+
+        if self.nota_fecha.strip():
+            fecha_txt = f" · Nota: {self.nota_fecha.strip()}"
+        else:
+            fecha_txt = ""
+
+        if preview:
+            self.lbl_nota.setText(f"{estado_txt}{fecha_txt} · {preview}")
+        else:
+            self.lbl_nota.setText(f"{estado_txt}{fecha_txt}")
 
         self.btn_notas.style().unpolish(self.btn_notas)
         self.btn_notas.style().polish(self.btn_notas)
@@ -137,8 +147,9 @@ class ClienteCardWidget(QtWidgets.QWidget):
         self._actualizar_estilo_notas()
         self.estado_changed.emit(self.empresa, self.estado)
 
-    def set_nota(self, nota: str):
+    def set_nota(self, nota: str, nota_fecha: str = ""):
         self.nota = (nota or "").strip()
+        self.nota_fecha = (nota_fecha or "").strip()
         self._actualizar_estilo_notas()
 
     def set_estado(self, estado: str):

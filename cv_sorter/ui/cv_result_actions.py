@@ -5,16 +5,20 @@ from pathlib import Path
 import yaml
 from PySide6 import QtCore, QtGui, QtWidgets
 
+from cv_sorter.services.notes_utils import actualizar_notas_unificadas
 from cv_sorter.ui.client_dialogs import DialogoClientesPremium
 from cv_sorter.ui.dialogs import DialogoTextoPremium
 
 
 def crear_o_abrir_notas(self, ruta_cv: str):
     p = Path(ruta_cv)
-    notas = p.with_suffix(p.suffix + ".notas.txt")
 
-    if not notas.exists():
-        notas.write_text(f"Notas para: {p.name}\n\n", encoding="utf-8")
+    try:
+        notas = actualizar_notas_unificadas(p)
+    except Exception:
+        notas = p.with_suffix(p.suffix + ".notas.txt")
+        if not notas.exists():
+            notas.write_text(f"Notas para: {p.name}\n\n", encoding="utf-8")
 
     QtGui.QDesktopServices.openUrl(QtCore.QUrl.fromLocalFile(str(p)))
     QtGui.QDesktopServices.openUrl(QtCore.QUrl.fromLocalFile(str(notas)))
@@ -85,11 +89,13 @@ def gestionar_clientes_cv(self, ruta_cv: str):
                             if isinstance(item, dict):
                                 empresa = str(item.get("empresa", "")).strip()
                                 nota = str(item.get("nota", "")).strip()
+                                nota_fecha = str(item.get("nota_fecha", "")).strip()
                                 estado = str(item.get("estado", "Pendiente")).strip() or "Pendiente"
                                 if empresa:
                                     clientes_iniciales.append({
                                         "empresa": empresa,
                                         "nota": nota,
+                                        "nota_fecha": nota_fecha,
                                         "estado": estado,
                                     })
                             elif isinstance(item, str):
@@ -156,7 +162,13 @@ def gestionar_clientes_cv(self, ruta_cv: str):
         if ruta_clientes.exists():
             ruta_clientes.unlink()
 
+    # 👇 MOVER FUERA DEL IF
     self._refrescar_estado_cliente_en_lista(str(p))
+
+    try:
+        actualizar_notas_unificadas(p)
+    except Exception:
+        pass
 
     if hasattr(self, "scope_notas") and self.scope_notas.isChecked():
         QtCore.QTimer.singleShot(0, self._accion_buscar)
