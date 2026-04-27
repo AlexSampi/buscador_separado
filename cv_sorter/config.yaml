@@ -19,8 +19,8 @@ classification:
 
 # Búsqueda (con índice)
 search:
-  rebuild_index_every_time: true
-  max_results: 200
+  rebuild_index_every_time: false
+  max_results: 300
   auto_reindex_if_db_missing: true
   hide_index_folder: true
 

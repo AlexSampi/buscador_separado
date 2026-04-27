@@ -82,8 +82,24 @@ def ruta_recurso(ruta_relativa: str) -> Path:
     if hasattr(sys, "_MEIPASS"):
         base = Path(sys._MEIPASS)
     else:
-        base = Path.cwd()
+        base = Path(__file__).resolve().parent.parent
     return (base / ruta_relativa).resolve()
+
+
+def ruta_logo_app() -> Path:
+    candidatos = (
+        "assets/logo.png",
+        "assets/logo.jpg",
+        "logo.png",
+        "logo.jpg",
+    )
+
+    for candidato in candidatos:
+        ruta = ruta_recurso(candidato)
+        if ruta.exists():
+            return ruta
+
+    return ruta_recurso("logo.jpg")
 
 
 def ocultar_carpeta_windows(p: Path) -> None:

@@ -1,7 +1,7 @@
 from __future__ import annotations
 
-import os
 import io
+import os
 import re
 from pathlib import Path
 from typing import Optional
@@ -9,38 +9,29 @@ from typing import Optional
 from cv_sorter.utils import ruta_recurso
 
 
-# Recibe archivo y decide siguiente acción en base a su extensión
 def extraer_texto(ruta_archivo: Path, config: Optional[dict] = None) -> str:
     extension = ruta_archivo.suffix.lower()
+    texto = ""
 
     if extension == ".txt":
-        return _leer_txt(ruta_archivo)
+        texto = _leer_txt(ruta_archivo)
 
-    if extension == ".docx":
-        return _extraer_docx(ruta_archivo)
+    elif extension == ".docx":
+        texto = _extraer_docx(ruta_archivo)
 
-    # PDF tiene dos partes
-    # 1- Intenta extraer texto sin IA
-    if extension == ".pdf":
+    elif extension == ".pdf":
         texto = _extraer_texto_pdf_embebido(ruta_archivo, config)
-        if texto.strip():
-            return texto
+        if not texto.strip() and config and (config.get("ocr", {}) or {}).get("enabled", False):
+            texto = _ocr_pdf_con_pymupdf(ruta_archivo, config)
 
-        # Si en el anterior paso sale vacío, indica que pdf fue escaneado y no tine texto real -> Recurre a OCR
+    elif extension in (".png", ".jpg", ".jpeg", ".tif", ".tiff", ".bmp"):
         if config and (config.get("ocr", {}) or {}).get("enabled", False):
-            return _ocr_pdf_con_pymupdf(ruta_archivo, config)
+            texto = _ocr_imagen(ruta_archivo, config)
 
-        return ""
+    # Si no pudimos leer contenido real, al menos indexamos el nombre.
+    return texto.strip() or ruta_archivo.name
 
-    # Imagenes -> OCR
-    if extension in (".png", ".jpg", ".jpeg", ".tif", ".tiff", ".bmp"):
-        if config and (config.get("ocr", {}) or {}).get("enabled", False):
-            return _ocr_imagen(ruta_archivo, config)
-        return ""
 
-    return ""
-
-# Formato para leer el archivo
 def _leer_txt(ruta_archivo: Path) -> str:
     try:
         return ruta_archivo.read_text(encoding="utf-8", errors="ignore")
@@ -52,12 +43,6 @@ def _leer_txt(ruta_archivo: Path) -> str:
 
 
 def _extraer_docx(ruta_archivo: Path) -> str:
-    """ Claude:
-    Usa la librería python-docx para leer el Word. Un .docx internamente es un ZIP con XMLs, 
-    y python-docx lo parsea y expone los párrafos como objetos. 
-    Este código recorre todos los párrafos, descarta los vacíos y los une con saltos de línea. 
-    Una limitación a tener en cuenta es que no extrae texto de tablas, solo de párrafos normales. 
-    """
     try:
         from docx import Document
 
@@ -74,7 +59,6 @@ def _extraer_docx(ruta_archivo: Path) -> str:
 
 
 def _parece_pdf(ruta_archivo: Path) -> bool:
-    # Hay PDFs que en realidad son "pdfs" rotos o cosas raras. Esto me ahorra errores tontos.
     try:
         with ruta_archivo.open("rb") as f:
             return f.read(5) == b"%PDF-"
@@ -90,7 +74,6 @@ def _extraer_texto_pdf_embebido(ruta_archivo: Path, config: Optional[dict]) -> s
     if config:
         max_paginas = int((config.get("ocr", {}) or {}).get("max_pdf_pages", 6))
 
-    # 1) PyMuPDF: suele ser el más robusto y no mete warnings raros por stderr
     try:
         import fitz
 
@@ -108,14 +91,13 @@ def _extraer_texto_pdf_embebido(ruta_archivo: Path, config: Optional[dict]) -> s
     except Exception:
         pass
 
-    # 2) Fallback pypdf: útil si PyMuPDF falla por cualquier motivo
     try:
         import contextlib
-        import io as _io
+        import io as io_stderr
         from pypdf import PdfReader
 
         partes = []
-        with contextlib.redirect_stderr(_io.StringIO()):
+        with contextlib.redirect_stderr(io_stderr.StringIO()):
             lector = PdfReader(str(ruta_archivo), strict=False)
             for i, pagina in enumerate(lector.pages):
                 if i >= max_paginas:
@@ -130,9 +112,6 @@ def _extraer_texto_pdf_embebido(ruta_archivo: Path, config: Optional[dict]) -> s
 
 
 def _resolver_tesseract_y_tessdata(config: dict) -> tuple[Optional[str], Optional[str]]:
-    # Prioridad:
-    # 1) tesseract embebido dentro del exe (ocr_bin)
-    # 2) si no existe, lo que venga en config (por si alguien lo tiene instalado fuera)
     ocr_config = config.get("ocr", {}) or {}
 
     tesseract_embebido = ruta_recurso("ocr_bin/tesseract.exe")
@@ -143,11 +122,8 @@ def _resolver_tesseract_y_tessdata(config: dict) -> tuple[Optional[str], Optiona
 
     if tesseract_embebido.exists():
         comando_tesseract = str(tesseract_embebido)
-
-        # Importante: tesseract necesita sus DLLs, así que meto su carpeta en PATH
         os.environ["PATH"] = str(tesseract_embebido.parent) + os.pathsep + os.environ.get("PATH", "")
 
-        # Y si está tessdata, lo apunto con TESSDATA_PREFIX
         if tessdata_embebido.exists():
             carpeta_tessdata = str(tessdata_embebido)
             os.environ["TESSDATA_PREFIX"] = carpeta_tessdata
@@ -175,7 +151,6 @@ def _ocr_imagen(ruta_imagen: Path, config: dict) -> str:
 
         idiomas = ((config.get("ocr", {}) or {}).get("languages", "spa+eng") or "spa+eng").strip()
 
-        # Para evitar que tesseract no encuentre los traineddata cuando va embebido
         parametros_extra = ""
         if carpeta_tessdata:
             parametros_extra = f'--tessdata-dir "{carpeta_tessdata}"'
@@ -214,18 +189,13 @@ def _ocr_pdf_con_pymupdf(ruta_pdf: Path, config: dict) -> str:
 
         for i in range(min(doc.page_count, max_paginas)):
             pagina = doc.load_page(i)
-
-            # Renderizo página a imagen, y de ahí OCR.
-            # Esto evita dependencias externas tipo Poppler.
             pix = pagina.get_pixmap(dpi=dpi)
             imagen = Image.open(io.BytesIO(pix.tobytes("png")))
-
             partes.append(pytesseract.image_to_string(imagen, lang=idiomas, config=parametros_extra) or "")
 
         doc.close()
 
         texto = "\n".join(partes)
-        texto = re.sub(r"[ \t]+\n", "\n", texto)
-        return texto
+        return re.sub(r"[ \t]+\n", "\n", texto)
     except Exception:
         return ""

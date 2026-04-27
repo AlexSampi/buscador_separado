@@ -39,8 +39,11 @@ from cv_sorter.ui.search_page import (
 )
 from cv_sorter.ui.classify_page import (
     build_classify_page,
+    actualizar_metricas_clasificacion,
+    actualizar_preview_clasificacion,
     actualizar_resumen_clasificacion_manual,
     actualizar_estado_boton_deshacer,
+    set_clasificar_progress_state,
     clasificar_limpiar,
     clasificar_editar_item,
     clasificar_elegir_origen,
@@ -550,6 +553,11 @@ class VentanaPrincipal(QtWidgets.QMainWindow):
                 "No hay ninguna clasificación reciente que se pueda revertir."
             )
             self.clasificar_estado.setText("No hay historial para deshacer.")
+            self._set_clasificar_progress_state(
+                "ready",
+                "Sin historial reciente",
+                "No hay una clasificacion aplicada que se pueda revertir ahora mismo.",
+            )
             return
 
         respuesta = QtWidgets.QMessageBox.question(
@@ -566,12 +574,25 @@ class VentanaPrincipal(QtWidgets.QMainWindow):
 
         if respuesta != QtWidgets.QMessageBox.Yes:
             self.clasificar_estado.setText("Deshacer cancelado por el usuario.")
+            self._set_clasificar_progress_state(
+                "done",
+                "Reversion cancelada",
+                "La clasificacion aplicada se mantiene sin cambios.",
+                1,
+                1,
+            )
             return
 
         self.clasificar_btn_deshacer.setEnabled(False)
         self.clasificar_btn_aplicar.setEnabled(False)
         self.clasificar_btn_escaneo.setEnabled(False)
         self.clasificar_estado.setText("Preparando reversión de la clasificación...")
+
+        self._set_clasificar_progress_state(
+            "applying",
+            "Revirtiendo clasificacion",
+            "OVEUN esta restaurando los CVs y limpiando los metadatos asociados.",
+        )
 
         worker = _UndoClassificationWorker(
             self._clasificar_ultimo_historial,
@@ -586,6 +607,11 @@ class VentanaPrincipal(QtWidgets.QMainWindow):
 
     def _clasificar_deshacer_on_progress(self, texto: str):
         self.clasificar_estado.setText(texto)
+        self._set_clasificar_progress_state(
+            "applying",
+            "Revirtiendo clasificacion",
+            texto,
+        )
 
     def _clasificar_deshacer_on_finished(self, info: dict):
         restaurados = int(info.get("restaurados", 0))
@@ -595,6 +621,8 @@ class VentanaPrincipal(QtWidgets.QMainWindow):
 
         self.clasificar_btn_escaneo.setEnabled(True)
         self.clasificar_btn_aplicar.setEnabled(False)
+        self.clasificar_btn_origen.setEnabled(True)
+        self.clasificar_btn_limpiar.setEnabled(True)
 
         texto_estado = f"Reversión completada · Restaurados: {restaurados} · Errores: {errores}"
         if carpetas_borradas:
@@ -630,11 +658,27 @@ class VentanaPrincipal(QtWidgets.QMainWindow):
         self._actualizar_estado_boton_deshacer()
         self.clasificar_lista.clear()
         self._clasificar_resultados = []
+        self._actualizar_metricas_clasificacion(total=0, categorias=0, preparados=0, top="--")
+        self._actualizar_preview_clasificacion()
+        self._set_clasificar_progress_state(
+            "done",
+            "Clasificacion revertida",
+            "Los CVs restaurados ya no tienen una propuesta activa en pantalla.",
+            max(restaurados, 1),
+            max(restaurados + errores, 1),
+        )
 
     def _clasificar_deshacer_on_error(self, msg: str):
         self.clasificar_btn_escaneo.setEnabled(True)
+        self.clasificar_btn_origen.setEnabled(True)
+        self.clasificar_btn_limpiar.setEnabled(True)
         self._actualizar_estado_boton_deshacer()
         self.clasificar_estado.setText(f"Error al deshacer: {msg}")
+        self._set_clasificar_progress_state(
+            "error",
+            "No se pudo revertir la clasificacion",
+            msg,
+        )
 
         QtWidgets.QMessageBox.critical(
             self,
@@ -650,6 +694,10 @@ class VentanaPrincipal(QtWidgets.QMainWindow):
         clas_w.setGraphicsEffect(None)
         clas_w.show()
         clas_w.raise_()
+
+        if hasattr(self, "clasificar_hero_media") and self.clasificar_hero_media:
+            QtCore.QTimer.singleShot(0, self.clasificar_hero_media.refresh_display)
+            QtCore.QTimer.singleShot(120, self.clasificar_hero_media.refresh_display)
 
         self.footer_estado.setText("Modo clasificar")
         carpeta = str(self._clasificar_origen) if self._clasificar_origen else "—"
@@ -713,8 +761,17 @@ class VentanaPrincipal(QtWidgets.QMainWindow):
     def _actualizar_resumen_clasificacion_manual(self):
         return actualizar_resumen_clasificacion_manual(self)
 
+    def _actualizar_metricas_clasificacion(self, *args, **kwargs):
+        return actualizar_metricas_clasificacion(self, *args, **kwargs)
+
+    def _actualizar_preview_clasificacion(self):
+        return actualizar_preview_clasificacion(self)
+
     def _actualizar_estado_boton_deshacer(self):
         return actualizar_estado_boton_deshacer(self)
+
+    def _set_clasificar_progress_state(self, *args, **kwargs):
+        return set_clasificar_progress_state(self, *args, **kwargs)
     
     def _clasificar_limpiar(self):
         return clasificar_limpiar(self)

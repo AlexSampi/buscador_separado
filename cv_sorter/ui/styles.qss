@@ -1507,3 +1507,589 @@ QLabel#HomeHint {
     font-weight: 700;
     margin-top: 6px;
 }
+
+QWidget#ClasificarPanel[classifyPanel="control"] {
+    background: qlineargradient(x1:0, y1:0, x2:0, y2:1,
+        stop:0 rgba(255,255,255,0.90),
+        stop:1 rgba(250,247,255,0.82)
+    );
+    border: 1px solid rgba(139, 92, 246, 0.20);
+}
+
+QWidget#ClasificarPanel[classifyPanel="preview"] {
+    background: qlineargradient(x1:0, y1:0, x2:1, y2:1,
+        stop:0 rgba(255,255,255,0.94),
+        stop:0.52 rgba(248,245,255,0.90),
+        stop:1 rgba(243,232,255,0.84)
+    );
+    border: 1px solid rgba(139, 92, 246, 0.24);
+}
+
+QLabel#ClasificarEstado[classifyTone="soft"] {
+    background: qlineargradient(x1:0, y1:0, x2:1, y2:0,
+        stop:0 rgba(255,255,255,0.90),
+        stop:1 rgba(243,232,255,0.82)
+    );
+    border: 1px solid rgba(139, 92, 246, 0.18);
+    padding: 13px 16px;
+    color: rgba(17,24,39,0.76);
+}
+
+QLabel#ClasificarResumen[classifyTone="summary"] {
+    background: qlineargradient(x1:0, y1:0, x2:1, y2:0,
+        stop:0 rgba(255,255,255,0.96),
+        stop:1 rgba(243,232,255,0.86)
+    );
+    border: 1px solid rgba(139, 92, 246, 0.22);
+    padding: 14px 16px;
+    color: rgba(17,24,39,0.78);
+    font-weight: 850;
+}
+
+QLabel#SideInfo[classifyHint="soft"] {
+    background: rgba(255,255,255,0.82);
+    border: 1px solid rgba(139, 92, 246, 0.14);
+    color: rgba(17,24,39,0.64);
+}
+
+QLabel#SideInfo[classifyHint="preview"] {
+    background: rgba(255,255,255,0.72);
+    border: 1px solid rgba(139, 92, 246, 0.14);
+    color: rgba(17,24,39,0.62);
+    padding: 11px 12px;
+}
+
+QPushButton[classifyRole="primary"] {
+    color: #111827;
+    border: 1px solid rgba(255,255,255,0.42);
+    border-bottom: 3px solid rgba(109, 40, 217, 0.18);
+    background: qlineargradient(x1:0, y1:0, x2:1, y2:1,
+        stop:0 rgba(255,255,255,0.98),
+        stop:0.55 rgba(233, 213, 255, 0.98),
+        stop:1 rgba(196, 181, 253, 0.98)
+    );
+}
+
+QPushButton[classifyRole="primary"]:hover {
+    border: 1px solid rgba(255,255,255,0.60);
+    background: qlineargradient(x1:0, y1:0, x2:1, y2:1,
+        stop:0 rgba(255,255,255,1.0),
+        stop:0.55 rgba(243, 232, 255, 0.99),
+        stop:1 rgba(221, 214, 254, 0.99)
+    );
+}
+
+QPushButton[classifyRole="accent"] {
+    color: #ffffff;
+    border: 1px solid rgba(124, 58, 237, 0.36);
+    border-bottom: 3px solid rgba(76, 29, 149, 0.34);
+    background: qlineargradient(x1:0, y1:0, x2:1, y2:1,
+        stop:0 rgba(167, 139, 250, 0.98),
+        stop:0.55 rgba(124, 58, 237, 0.98),
+        stop:1 rgba(91, 33, 182, 0.98)
+    );
+}
+
+QPushButton[classifyRole="accent"]:hover {
+    border: 1px solid rgba(196, 181, 253, 0.72);
+    background: qlineargradient(x1:0, y1:0, x2:1, y2:1,
+        stop:0 rgba(196, 181, 253, 0.99),
+        stop:0.55 rgba(139, 92, 246, 0.99),
+        stop:1 rgba(109, 40, 217, 0.99)
+    );
+}
+
+QPushButton[classifyRole="secondary"] {
+    color: #4c1d95;
+    border: 1px solid rgba(167, 139, 250, 0.34);
+    border-bottom: 3px solid rgba(109, 40, 217, 0.14);
+    background: rgba(255,255,255,0.92);
+}
+
+QPushButton[classifyRole="secondary"]:hover {
+    background: rgba(245,243,255,0.98);
+    border: 1px solid rgba(139, 92, 246, 0.42);
+}
+
+QPushButton[classifyRole="ghost"] {
+    background: rgba(255,255,255,0.82);
+    border: 1px solid rgba(139, 92, 246, 0.18);
+    color: rgba(17,24,39,0.78);
+}
+
+QPushButton[classifyRole="ghost"]:hover {
+    background: rgba(255,255,255,0.96);
+    border: 1px solid rgba(139, 92, 246, 0.30);
+}
+
+QLabel#SideSubTitle[classifyLabel="section"] {
+    color: rgba(55, 48, 163, 0.72);
+    font-size: 11px;
+    font-weight: 950;
+    letter-spacing: 1.2px;
+}
+
+QLabel#SideTitle[classifyLabel="preview"] {
+    color: #111827;
+    font-size: 14px;
+    font-weight: 950;
+    letter-spacing: 0.8px;
+}
+
+QLineEdit[classifyInput="origin"] {
+    background: qlineargradient(x1:0, y1:0, x2:1, y2:0,
+        stop:0 rgba(255,255,255,0.96),
+        stop:1 rgba(250,247,255,0.94)
+    );
+    border: 1px solid rgba(196, 181, 253, 0.78);
+    border-radius: 16px;
+    padding: 12px 14px;
+    color: #111827;
+    selection-background-color: rgba(167, 139, 250, 0.30);
+}
+
+QLineEdit[classifyInput="origin"]:focus {
+    border: 1px solid rgba(124, 58, 237, 0.58);
+    background: rgba(255,255,255,1.0);
+}
+
+QPushButton[classifyRole="primary"]:pressed {
+    border-bottom: 1px solid rgba(109, 40, 217, 0.20);
+}
+
+QPushButton[classifyRole="primary"]:disabled {
+    color: rgba(107,114,128,0.92);
+    border: 1px solid rgba(196,181,253,0.30);
+    border-bottom: 2px solid rgba(0,0,0,0.06);
+    background: rgba(248,250,252,0.92);
+}
+
+QPushButton[classifyRole="accent"]:pressed {
+    border-bottom: 1px solid rgba(76, 29, 149, 0.28);
+}
+
+QPushButton[classifyRole="accent"]:disabled {
+    color: rgba(255,255,255,0.84);
+    border: 1px solid rgba(196,181,253,0.34);
+    border-bottom: 2px solid rgba(109, 40, 217, 0.12);
+    background: qlineargradient(x1:0, y1:0, x2:1, y2:1,
+        stop:0 rgba(196,181,253,0.64),
+        stop:1 rgba(167,139,250,0.60)
+    );
+}
+
+QPushButton[classifyRole="secondary"]:disabled {
+    color: rgba(139,92,246,0.46);
+    border: 1px solid rgba(196,181,253,0.24);
+    background: rgba(255,255,255,0.78);
+}
+
+QListWidget#ClasificarLista[classifySurface="results"] {
+    background: rgba(255,255,255,0.74);
+    border: 1px solid rgba(139, 92, 246, 0.18);
+    border-radius: 18px;
+    padding: 4px;
+}
+
+QWidget#EmptyState[classifyTone="empty"] {
+    background: qlineargradient(x1:0, y1:0, x2:1, y2:1,
+        stop:0 rgba(251,248,255,0.98),
+        stop:1 rgba(243,232,255,0.90)
+    );
+    border: 1px dashed rgba(139, 92, 246, 0.34);
+}
+
+QLabel#EmptyTitle[classifyTone="empty"] {
+    color: rgba(31,41,55,0.92);
+    font-size: 18px;
+    font-weight: 950;
+}
+
+QLabel#EmptyText[classifyTone="empty"] {
+    color: rgba(75,85,99,0.78);
+    font-size: 12px;
+    font-weight: 750;
+}
+
+QWidget#ClasificarHeroMedia {
+    background: qlineargradient(x1:0, y1:0, x2:1, y2:1,
+        stop:0 rgba(24, 24, 39, 0.94),
+        stop:0.55 rgba(46, 29, 75, 0.92),
+        stop:1 rgba(17, 24, 39, 0.96)
+    );
+    border: 1px solid rgba(167, 139, 250, 0.22);
+    border-radius: 22px;
+}
+
+QLabel#ClasificarHeroCaption {
+    color: rgba(233, 213, 255, 0.96);
+    font-size: 12px;
+    font-weight: 900;
+    letter-spacing: 0.6px;
+}
+
+QWidget#ClasificarProgressShell {
+    background: rgba(255,255,255,0.86);
+    border: 1px solid rgba(139, 92, 246, 0.16);
+    border-radius: 16px;
+}
+
+QWidget#ClasificarProgressShell[classifyStage="scanning"] {
+    background: qlineargradient(x1:0, y1:0, x2:1, y2:0,
+        stop:0 rgba(255,255,255,0.92),
+        stop:1 rgba(243,232,255,0.88)
+    );
+    border: 1px solid rgba(124, 58, 237, 0.26);
+}
+
+QWidget#ClasificarProgressShell[classifyStage="ready"],
+QWidget#ClasificarProgressShell[classifyStage="done"] {
+    background: qlineargradient(x1:0, y1:0, x2:1, y2:0,
+        stop:0 rgba(255,255,255,0.94),
+        stop:1 rgba(236,253,245,0.92)
+    );
+    border: 1px solid rgba(16, 185, 129, 0.26);
+}
+
+QWidget#ClasificarProgressShell[classifyStage="applying"] {
+    background: qlineargradient(x1:0, y1:0, x2:1, y2:0,
+        stop:0 rgba(255,255,255,0.94),
+        stop:1 rgba(224,231,255,0.90)
+    );
+    border: 1px solid rgba(99, 102, 241, 0.26);
+}
+
+QWidget#ClasificarProgressShell[classifyStage="error"] {
+    background: qlineargradient(x1:0, y1:0, x2:1, y2:0,
+        stop:0 rgba(255,255,255,0.94),
+        stop:1 rgba(254,242,242,0.94)
+    );
+    border: 1px solid rgba(239, 68, 68, 0.26);
+}
+
+QLabel#ClasificarProgressLabel {
+    color: #111827;
+    font-size: 12px;
+    font-weight: 950;
+    letter-spacing: 0.4px;
+}
+
+QLabel#ClasificarProgressValue {
+    color: rgba(79, 70, 229, 0.92);
+    font-size: 12px;
+    font-weight: 950;
+}
+
+QLabel#ClasificarProgressMeta {
+    color: rgba(55,65,81,0.74);
+    font-size: 11px;
+    font-weight: 700;
+}
+
+QProgressBar#ClasificarProgressBar {
+    background: rgba(255,255,255,0.74);
+    border: 1px solid rgba(139, 92, 246, 0.14);
+    border-radius: 999px;
+}
+
+QProgressBar#ClasificarProgressBar::chunk {
+    border-radius: 999px;
+    background: qlineargradient(x1:0, y1:0, x2:1, y2:0,
+        stop:0 rgba(196,181,253,0.98),
+        stop:1 rgba(124,58,237,0.98)
+    );
+}
+
+QProgressBar#ClasificarProgressBar[classifyStage="ready"]::chunk,
+QProgressBar#ClasificarProgressBar[classifyStage="done"]::chunk {
+    background: qlineargradient(x1:0, y1:0, x2:1, y2:0,
+        stop:0 rgba(52,211,153,0.96),
+        stop:1 rgba(5,150,105,0.96)
+    );
+}
+
+QProgressBar#ClasificarProgressBar[classifyStage="applying"]::chunk {
+    background: qlineargradient(x1:0, y1:0, x2:1, y2:0,
+        stop:0 rgba(129,140,248,0.96),
+        stop:1 rgba(79,70,229,0.96)
+    );
+}
+
+QProgressBar#ClasificarProgressBar[classifyStage="error"]::chunk {
+    background: qlineargradient(x1:0, y1:0, x2:1, y2:0,
+        stop:0 rgba(248,113,113,0.96),
+        stop:1 rgba(220,38,38,0.96)
+    );
+}
+
+QWidget#ClasificarMetricCard {
+    background: rgba(255,255,255,0.92);
+    border: 1px solid rgba(139, 92, 246, 0.14);
+    border-radius: 16px;
+}
+
+QWidget#ClasificarMetricCard[metricTone="violet"] {
+    background: qlineargradient(x1:0, y1:0, x2:1, y2:1,
+        stop:0 rgba(255,255,255,0.96),
+        stop:1 rgba(237,233,254,0.96)
+    );
+}
+
+QWidget#ClasificarMetricCard[metricTone="soft"] {
+    background: qlineargradient(x1:0, y1:0, x2:1, y2:1,
+        stop:0 rgba(255,255,255,0.96),
+        stop:1 rgba(243,244,246,0.96)
+    );
+}
+
+QWidget#ClasificarMetricCard[metricTone="mint"] {
+    background: qlineargradient(x1:0, y1:0, x2:1, y2:1,
+        stop:0 rgba(255,255,255,0.96),
+        stop:1 rgba(236,253,245,0.96)
+    );
+}
+
+QWidget#ClasificarMetricCard[metricTone="amber"] {
+    background: qlineargradient(x1:0, y1:0, x2:1, y2:1,
+        stop:0 rgba(255,255,255,0.96),
+        stop:1 rgba(255,251,235,0.96)
+    );
+}
+
+QLabel#ClasificarMetricValue {
+    color: #111827;
+    font-size: 21px;
+    font-weight: 950;
+}
+
+QLabel#ClasificarMetricLabel {
+    color: rgba(55,65,81,0.66);
+    font-size: 11px;
+    font-weight: 850;
+    letter-spacing: 0.8px;
+}
+
+QWidget#ClasificarDistributionRow {
+    background: transparent;
+}
+
+QWidget#ClasificarPreviewCard {
+    background: qlineargradient(x1:0, y1:0, x2:1, y2:1,
+        stop:0 rgba(255,255,255,0.95),
+        stop:0.52 rgba(248,245,255,0.92),
+        stop:1 rgba(241,232,255,0.90)
+    );
+    border: 1px solid rgba(139, 92, 246, 0.18);
+    border-radius: 18px;
+}
+
+QLabel#ClasificarPreviewEyebrow {
+    color: rgba(79, 70, 229, 0.82);
+    font-size: 11px;
+    font-weight: 950;
+    letter-spacing: 1px;
+}
+
+QLabel#ClasificarPreviewCounter {
+    color: rgba(55,65,81,0.62);
+    font-size: 11px;
+    font-weight: 850;
+}
+
+QLabel#ClasificarPreviewTitle {
+    color: #111827;
+    font-size: 16px;
+    font-weight: 950;
+}
+
+QLabel#ClasificarPreviewMeta {
+    color: rgba(55,65,81,0.72);
+    font-size: 12px;
+    font-weight: 800;
+}
+
+QLabel#ClasificarPreviewDestination {
+    color: rgba(17,24,39,0.82);
+    font-size: 12px;
+    font-weight: 750;
+    background: rgba(255,255,255,0.68);
+    border: 1px solid rgba(139, 92, 246, 0.10);
+    border-radius: 12px;
+    padding: 10px 12px;
+}
+
+QLabel#ClasificarPreviewHint {
+    color: rgba(75,85,99,0.72);
+    font-size: 11px;
+    font-weight: 750;
+}
+
+/* ===== Clasificar compact premium pass ===== */
+QWidget#ClasificarPanel[classifyPanel="control"] {
+    border-radius: 18px;
+}
+
+QWidget#ClasificarPanel[classifyPanel="preview"] {
+    border-radius: 20px;
+}
+
+QLabel#ClasificarEstado {
+    padding: 10px 12px;
+    font-size: 11px;
+    font-weight: 780;
+}
+
+QWidget#ClasificarProgressShell {
+    border-radius: 14px;
+}
+
+QLabel#ClasificarProgressLabel {
+    font-size: 11px;
+    font-weight: 920;
+    letter-spacing: 0.2px;
+}
+
+QLabel#ClasificarProgressValue {
+    min-width: 54px;
+    padding: 2px 8px;
+    border-radius: 999px;
+    background: rgba(255,255,255,0.84);
+    border: 1px solid rgba(139, 92, 246, 0.16);
+    color: rgba(79, 70, 229, 0.84);
+    font-size: 10px;
+    font-weight: 900;
+}
+
+QLabel#ClasificarProgressMeta {
+    color: rgba(75,85,99,0.68);
+    font-size: 10px;
+    font-weight: 720;
+}
+
+QProgressBar#ClasificarProgressBar {
+    border-radius: 6px;
+}
+
+QLabel#SideSubTitle[classifyLabel="section"] {
+    font-size: 10px;
+    font-weight: 900;
+    letter-spacing: 0.8px;
+}
+
+QLabel#SideTitle[classifyLabel="preview"] {
+    font-size: 13px;
+    font-weight: 920;
+    letter-spacing: 0.4px;
+}
+
+QLabel#SideInfo[classifyHint="soft"] {
+    padding: 8px 10px;
+    font-size: 10px;
+}
+
+QLabel#SideInfo[classifyHint="preview"] {
+    padding: 9px 10px;
+    font-size: 10px;
+}
+
+QLineEdit[classifyInput="origin"] {
+    min-height: 34px;
+    padding: 8px 11px;
+    font-size: 10px;
+}
+
+QPushButton[classifyRole="primary"],
+QPushButton[classifyRole="accent"],
+QPushButton[classifyRole="secondary"],
+QPushButton[classifyRole="ghost"] {
+    border-radius: 13px;
+    font-size: 10px;
+    font-weight: 900;
+}
+
+QWidget#ClasificarMetricCard {
+    border-radius: 14px;
+}
+
+QLabel#ClasificarMetricValue {
+    font-size: 16px;
+    font-weight: 920;
+}
+
+QLabel#ClasificarMetricLabel {
+    font-size: 9px;
+    font-weight: 820;
+    letter-spacing: 0.4px;
+}
+
+QLabel#ClasificarResumen {
+    padding: 10px 12px;
+    font-size: 11px;
+    font-weight: 760;
+}
+
+QWidget#EmptyState[classifyTone="empty"] {
+    border-radius: 18px;
+}
+
+QLabel#EmptyTitle[classifyTone="empty"] {
+    font-size: 15px;
+    font-weight: 920;
+}
+
+QLabel#EmptyText[classifyTone="empty"] {
+    font-size: 10px;
+    font-weight: 720;
+}
+
+QWidget#ClasificarHeroMedia {
+    border-radius: 18px;
+}
+
+QLabel#ClasificarHeroCaption {
+    font-size: 10px;
+    font-weight: 820;
+    letter-spacing: 0.2px;
+}
+
+QLabel#ClasificarPreviewEyebrow {
+    font-size: 10px;
+    font-weight: 900;
+    letter-spacing: 0.5px;
+}
+
+QLabel#ClasificarPreviewCounter {
+    min-width: 52px;
+    padding: 2px 8px;
+    border-radius: 999px;
+    background: rgba(255,255,255,0.72);
+    border: 1px solid rgba(139, 92, 246, 0.14);
+    color: rgba(55,65,81,0.66);
+    font-size: 10px;
+    font-weight: 820;
+}
+
+QWidget#ClasificarPreviewCard {
+    border-radius: 18px;
+}
+
+QLabel#ClasificarPreviewTitle {
+    font-size: 14px;
+    font-weight: 920;
+}
+
+QLabel#ClasificarPreviewMeta {
+    font-size: 11px;
+    font-weight: 760;
+}
+
+QLabel#ClasificarPreviewDestination {
+    font-size: 11px;
+    font-weight: 720;
+    padding: 9px 10px;
+}
+
+QLabel#ClasificarPreviewHint {
+    font-size: 10px;
+    font-weight: 720;
+}

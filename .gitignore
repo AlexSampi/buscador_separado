@@ -4,6 +4,7 @@ __pycache__/
 *.pyd
 
 .venv/
+.venv_build/
 venv/
 env/
 
@@ -13,6 +14,7 @@ build/
 
 .cv_index/
 *.sqlite3
+logs/
 
 .DS_Store
 Thumbs.db
