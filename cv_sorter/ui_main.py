@@ -651,6 +651,10 @@ class VentanaPrincipal(QtWidgets.QMainWindow):
         clas_w.show()
         clas_w.raise_()
 
+        if hasattr(self, "clasificar_hero_media") and self.clasificar_hero_media:
+            QtCore.QTimer.singleShot(0, self.clasificar_hero_media.refresh_display)
+            QtCore.QTimer.singleShot(120, self.clasificar_hero_media.refresh_display)
+
         self.footer_estado.setText("Modo clasificar")
         carpeta = str(self._clasificar_origen) if self._clasificar_origen else "—"
         self.footer_contexto.setText(f"Carpeta: {carpeta}")

@@ -165,10 +165,5 @@ def gestionar_clientes_cv(self, ruta_cv: str):
     # 👇 MOVER FUERA DEL IF
     self._refrescar_estado_cliente_en_lista(str(p))
 
-    try:
-        actualizar_notas_unificadas(p)
-    except Exception:
-        pass
-
     if hasattr(self, "scope_notas") and self.scope_notas.isChecked():
         QtCore.QTimer.singleShot(0, self._accion_buscar)

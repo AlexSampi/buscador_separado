@@ -209,19 +209,19 @@ class DialogoClientesPremium(QtWidgets.QDialog):
             empresa = self._normalizar_empresa(str((item or {}).get("empresa", "")).strip())
             nota = str((item or {}).get("nota", "")).strip()
             nota_fecha = str((item or {}).get("nota_fecha", "")).strip()
+            asignado_fecha = str((item or {}).get("asignado_fecha", "")).strip()
             estado = str((item or {}).get("estado", "Pendiente")).strip() or "Pendiente"
             if estado not in self.ESTADOS_VALIDOS:
                 estado = "Pendiente"
 
-            if empresa:
-                self._anadir_empresa_a_lista(
+            self._anadir_empresa_a_lista(
                 empresa,
                 nota,
                 estado,
                 nota_fecha=nota_fecha,
+                asignado_fecha=asignado_fecha,
                 comprobar_duplicado=False
             )
-
         self._actualizar_estado_ui()
         self._refrescar_visibilidad_lista()
         self.input_empresa.setFocus()
@@ -285,6 +285,7 @@ class DialogoClientesPremium(QtWidgets.QDialog):
         nota: str = "",
         estado: str = "Pendiente",
         nota_fecha: str = "",
+        asignado_fecha: str = "",
         comprobar_duplicado: bool = True
     ):
         empresa = self._normalizar_empresa(empresa)
@@ -299,16 +300,20 @@ class DialogoClientesPremium(QtWidgets.QDialog):
 
         if comprobar_duplicado and self._ya_existe_empresa(empresa):
             return
-        widget = ClienteCardWidget(empresa, nota, estado, nota_fecha)
-        widget.eliminar_clicked.connect(self._eliminar_empresa)
-        widget.notas_clicked.connect(self._editar_nota_empresa)
-        widget.estado_changed.connect(self._actualizar_estado_empresa)
+        
+        if not asignado_fecha:
+            asignado_fecha = QtCore.QDateTime.currentDateTime().toString("yyyy-MM-dd HH:mm")
+            widget = ClienteCardWidget(empresa, nota, estado, nota_fecha)
+            widget.eliminar_clicked.connect(self._eliminar_empresa)
+            widget.notas_clicked.connect(self._editar_nota_empresa)
+            widget.estado_changed.connect(self._actualizar_estado_empresa)
 
         item = QtWidgets.QListWidgetItem()
         item.setData(QtCore.Qt.UserRole, {
             "empresa": empresa,
             "nota": nota,
             "nota_fecha": (nota_fecha or "").strip(),
+            "asignado_fecha": asignado_fecha,
             "estado": estado,
         })
         item.setSizeHint(widget.sizeHint())
@@ -611,6 +616,7 @@ class DialogoClientesPremium(QtWidgets.QDialog):
             empresa = str(data.get("empresa", "")).strip()
             nota = str(data.get("nota", "")).strip()
             nota_fecha = str(data.get("nota_fecha", "")).strip()
+            asignado_fecha = str(data.get("asignado_fecha", "")).strip()
             estado = str(data.get("estado", "Pendiente")).strip() or "Pendiente"
 
             if estado not in self.ESTADOS_VALIDOS:
@@ -621,6 +627,7 @@ class DialogoClientesPremium(QtWidgets.QDialog):
                     "empresa": empresa,
                     "nota": nota,
                     "nota_fecha": nota_fecha,
+                    "asignado_fecha": asignado_fecha,
                     "estado": estado,
                 })
 
